@@ -1,0 +1,27 @@
+# Stage URLs — Team 07
+
+## Stage 1 — Single EC2
+
+Owner:
+Ömer Tüccar / tuccaro
+
+Base URL:
+PENDING
+
+
+## Stage 2 — ALB + Auto Scaling
+
+Owner:
+Enes Ertuğrul / ertugrule
+
+Base URL:
+PENDING
+
+
+## Stage 3 — Serverless API Gateway
+
+Owner:
+Umut Kadıoğlu / kadiogluu
+
+Base URL:
+PENDING

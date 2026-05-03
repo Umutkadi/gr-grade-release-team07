@@ -1,0 +1,36 @@
+# Stage URLs Template — Team 07
+
+## Stage 1 — Single EC2
+
+Owner:
+Ömer Tüccar / tuccaro
+
+Base URL:
+http://<stage1-elastic-ip>
+
+Example:
+http://3.80.10.20
+
+
+## Stage 2 — ALB + Auto Scaling
+
+Owner:
+Enes Ertuğrul / ertugrule
+
+Base URL:
+http://<stage2-alb-dns>
+
+Example:
+http://gr-stage2-alb-team07-1234567890.us-east-1.elb.amazonaws.com
+
+
+## Stage 3 — Serverless API Gateway
+
+Owner:
+Umut Kadıoğlu / kadiogluu
+
+Base URL:
+https://<stage3-api-id>.execute-api.us-east-1.amazonaws.com
+
+Example:
+https://abc123def4.execute-api.us-east-1.amazonaws.com

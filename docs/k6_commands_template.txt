@@ -1,0 +1,200 @@
+# k6 Commands Template — Team 07
+
+This file is a command reference. It is not an executable script.
+
+Official benchmark course:
+CLOUD101
+
+Seeded student file:
+benchmark/students.csv
+
+Important rules:
+- The same k6 scripts must be used for Stage 1, Stage 2, and Stage 3.
+- Only BASE_URL and output file name should change between stages.
+- Official benchmark endpoint:
+  GET /students/{student_id}/grades?course_code=CLOUD101
+- Smoke tests must not finalize CLOUD101.
+- Run all official benchmarks from the same client machine.
+- Create the results folder before running k6:
+  mkdir -p results
+
+---
+
+# 1) Official 30-minute benchmark commands
+
+## Stage 1 — Single EC2
+
+Replace <stage1-elastic-ip> with the real Elastic IP.
+
+k6 run \
+  --env BASE_URL=http://<stage1-elastic-ip> \
+  --env COURSE_CODE=CLOUD101 \
+  --env STUDENT_FILE=benchmark/students.csv \
+  --summary-export results/stage1_official_summary.json \
+  benchmark/official_read_benchmark.js
+
+---
+
+## Stage 2 — ALB + Auto Scaling
+
+Replace <stage2-alb-dns> with the real ALB DNS.
+
+k6 run \
+  --env BASE_URL=http://<stage2-alb-dns> \
+  --env COURSE_CODE=CLOUD101 \
+  --env STUDENT_FILE=benchmark/students.csv \
+  --summary-export results/stage2_official_summary.json \
+  benchmark/official_read_benchmark.js
+
+---
+
+## Stage 3 — Serverless API Gateway
+
+Replace <stage3-api-id> with the real API Gateway ID.
+
+k6 run \
+  --env BASE_URL=https://<stage3-api-id>.execute-api.us-east-1.amazonaws.com \
+  --env COURSE_CODE=CLOUD101 \
+  --env STUDENT_FILE=benchmark/students.csv \
+  --summary-export results/stage3_official_summary.json \
+  benchmark/official_read_benchmark.js
+
+---
+
+# 2) Live demo commands
+
+The live demo script is:
+benchmark/demo_scaleout.js
+
+It should generate:
+- 1800 requests/minute
+- 6 minutes duration
+- GET /students/{student_id}/grades?course_code=CLOUD101
+
+---
+
+## Stage 2 live scale-out demo
+
+Purpose:
+Show Stage 2 ASG scaling from 1 instance toward 2 and 3.
+
+k6 run \
+  --env BASE_URL=http://<stage2-alb-dns> \
+  --env COURSE_CODE=CLOUD101 \
+  --env STUDENT_FILE=benchmark/students.csv \
+  --summary-export results/stage2_demo_summary.json \
+  benchmark/demo_scaleout.js
+
+Expected observation:
+- ASG starts with desired capacity 1.
+- Traffic goes through ALB.
+- ALBRequestCountPerTarget exceeds target value 600.
+- ASG scales out from 1 to 2 and toward 3.
+- After load stops, scale-in should eventually become visible.
+
+---
+
+## Stage 1 live CPU spike demo
+
+Purpose:
+Show Stage 1 single EC2 CPU increase under the same load.
+
+k6 run \
+  --env BASE_URL=http://<stage1-elastic-ip> \
+  --env COURSE_CODE=CLOUD101 \
+  --env STUDENT_FILE=benchmark/students.csv \
+  --summary-export results/stage1_demo_summary.json \
+  benchmark/demo_scaleout.js
+
+Expected observation:
+- Single EC2 receives the full load.
+- CPUUtilization increases visibly in CloudWatch.
+
+---
+
+## Optional Stage 3 demo comparison
+
+Purpose:
+Optional latency comparison for serverless API Gateway + Lambda.
+
+k6 run \
+  --env BASE_URL=https://<stage3-api-id>.execute-api.us-east-1.amazonaws.com \
+  --env COURSE_CODE=CLOUD101 \
+  --env STUDENT_FILE=benchmark/students.csv \
+  --summary-export results/stage3_demo_summary.json \
+  benchmark/demo_scaleout.js
+
+Expected observation:
+- Lambda handles traffic without EC2 management.
+- CloudWatch Lambda metrics/logs show invocations.
+
+---
+
+# 3) Quick dry-run commands
+
+These are only short verification runs.
+They do not replace the official benchmark.
+
+## Stage 1 dry-run
+
+k6 run \
+  --duration 1m \
+  --vus 5 \
+  --env BASE_URL=http://<stage1-elastic-ip> \
+  --env COURSE_CODE=CLOUD101 \
+  --env STUDENT_FILE=benchmark/students.csv \
+  benchmark/official_read_benchmark.js
+
+---
+
+## Stage 2 dry-run
+
+k6 run \
+  --duration 1m \
+  --vus 5 \
+  --env BASE_URL=http://<stage2-alb-dns> \
+  --env COURSE_CODE=CLOUD101 \
+  --env STUDENT_FILE=benchmark/students.csv \
+  benchmark/official_read_benchmark.js
+
+---
+
+## Stage 3 dry-run
+
+k6 run \
+  --duration 1m \
+  --vus 5 \
+  --env BASE_URL=https://<stage3-api-id>.execute-api.us-east-1.amazonaws.com \
+  --env COURSE_CODE=CLOUD101 \
+  --env STUDENT_FILE=benchmark/students.csv \
+  benchmark/official_read_benchmark.js
+
+---
+
+# 4) Values to replace later
+
+Stage 1 base URL:
+http://<stage1-elastic-ip>
+
+Stage 2 base URL:
+http://<stage2-alb-dns>
+
+Stage 3 base URL:
+https://<stage3-api-id>.execute-api.us-east-1.amazonaws.com
+
+---
+
+# 5) Notes
+
+- Do not run official benchmark before seed data is ready.
+- Do not run official benchmark before all three stages pass smoke tests.
+- Do not manually stop resources during the 30-minute idle observation window.
+- Official benchmark result must use http_req_duration avg from k6.
+- Stage 2 must use:
+  ASG min=1
+  desired=1 at benchmark start
+  max=4
+  target tracking
+  ALBRequestCountPerTarget
+  target value=600
+  warmup=60 seconds
