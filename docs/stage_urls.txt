@@ -15,7 +15,7 @@ Owner:
 Enes Ertuğrul / ertugrule
 
 Base URL:
-PENDING
+gr-stage2-alb-team07-1148531051.us-east-1.elb.amazonaws.com
 
 
 ## Stage 3 — Serverless API Gateway
