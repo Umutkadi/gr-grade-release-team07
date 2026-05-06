@@ -40,7 +40,7 @@ k6 run \
 Replace <stage2-alb-dns> with the real ALB DNS.
 
 k6 run \
-  --env BASE_URL=http://<stage2-alb-dns> \
+  --env BASE_URL=http://gr-stage2-alb-team07-1148531051.us-east-1.elb.amazonaws.com \
   --env COURSE_CODE=CLOUD101 \
   --env STUDENT_FILE=benchmark/students.csv \
   --summary-export results/stage2_official_summary.json \
